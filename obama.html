@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Peter Day">
+<title>Obama Speech Correspondence Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<script src="obama_files/libs/clipboard/clipboard.min.js"></script>
+<script src="obama_files/libs/quarto-html/quarto.js"></script>
+<script src="obama_files/libs/quarto-html/popper.min.js"></script>
+<script src="obama_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="obama_files/libs/quarto-html/anchor.min.js"></script>
+<link href="obama_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="obama_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="obama_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="obama_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="obama_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><script src="obama_files/libs/kePrint-0.0.1/kePrint.js"></script><link href="obama_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+<li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="toc-section-number">1</span>  Introduction</a></li>
+  <li><a href="#correspondence-analysis" id="toc-correspondence-analysis" class="nav-link" data-scroll-target="#correspondence-analysis"><span class="toc-section-number">2</span>  Correspondence Analysis</a></li>
+  <li><a href="#biplots" id="toc-biplots" class="nav-link" data-scroll-target="#biplots"><span class="toc-section-number">3</span>  Biplots</a></li>
+  <li>
+<a href="#sentiment-analysis" id="toc-sentiment-analysis" class="nav-link" data-scroll-target="#sentiment-analysis"><span class="toc-section-number">4</span>  Sentiment Analysis</a>
+  <ul class="collapse">
+<li><a href="#look-at-speeches-with-extreme-sentiment-values" id="toc-look-at-speeches-with-extreme-sentiment-values" class="nav-link" data-scroll-target="#look-at-speeches-with-extreme-sentiment-values"><span class="toc-section-number">4.1</span>  Look at speeches with extreme sentiment values</a></li>
+  </ul>
+</li>
+  <li><a href="#distance" id="toc-distance" class="nav-link" data-scroll-target="#distance"><span class="toc-section-number">5</span>  Distance</a></li>
+  <li><a href="#inertia" id="toc-inertia" class="nav-link" data-scroll-target="#inertia"><span class="toc-section-number">6</span>  Inertia</a></li>
+  <li><a href="#logistic-regression" id="toc-logistic-regression" class="nav-link" data-scroll-target="#logistic-regression"><span class="toc-section-number">7</span>  Logistic Regression</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="toc-section-number">8</span>  Conclusion</a></li>
+  </ul></nav>
+</div>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title">Obama Speech Correspondence Analysis</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Peter Day </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="abstract-title">Abstract</div>
+    Correspondence Analysis is investigated as a tool for differentiating whether a speech by Barack Obama was on national or international issues.
+  </div>
+</div>
+
+</header><section id="introduction" class="level1" data-number="1"><h1 data-number="1">
+<span class="header-section-number">1</span> Introduction</h1>
+<p>Barack Obama, the 44th President of The United States, was well known for his memorable speeches. This paper analyzes about 130 of his speeches using the multivariate statistical technique known as correspondence analysis (CA) using the base R function ca <span class="citation" data-cites="R-base">(<a href="#ref-R-base" role="doc-biblioref">R Core Team 2021</a>)</span>. CA is a dimension reduction technique which may also be used to view associations between categorical variables via biplots using <a href="https://ggplot2.tidyverse.org">ggplot2</a> <span class="citation" data-cites="R-ggplot2">(<a href="#ref-R-ggplot2" role="doc-biblioref">Wickham et al. 2022</a>)</span>.</p>
+<p>The speeches were separated into three topic categories: national, international and State of The Union (sotu). The two largest categories, by speech count, are national and international and reflect whether the main topic of the speech covers issues relating to national or international interests. The yearly State of The Union speech is a long speech summarizing the previous year and setting goals for the future and covers issues of both national and international issues. CA is investigated as a technique for differentiating between the various categories of speeches.</p>
+<p>In this case it is expected that there will be overlap between the categories of speeches. For example, a speech about the United States military fighting terrorism in Afghanistan will cover both national and international issues. Speeches about global warming may talk about how national policy effects the environment at a global scale. Likewise, the State of The Union speeches cover a broad range of topics and it may be difficult to discern these from the other topic categories. This of course leads to a problem with this study and that is the categorization of the speeches. The national and international speeches were manually categorized, and required some subjective judgement.</p>
+<p>Speeches were scraped from <a href="https://www.presidency.ucsb.edu/documents/barack-obama-event-timeline">UC Santa Barbara’s The American Presidency Project</a> <span class="citation" data-cites="ucsb">Peters &amp; Woolley (<a href="#ref-ucsb" role="doc-biblioref">2021</a>)</span> using a Python program employing the BeautifulSoup package. Roughly 130 speeches were collected, as given by Barack Obama starting with his nomination for Democratic party candidate. Each file has one speech and is an un-annotated text file. The speeches have been separated into three directories, one each for national, international and State of The Union speeches. There are 80 national speeches, 44 international and seven State of The Union speeches.</p>
+<p>Four different word lists were investigated ascertain which is most effective at differentiating between the speech types. First is a list of content words which is automatically populated after removing stop words from the speeches. Next, a manually defined list of content words which were selected from words generated by a Latent Dirichlet Allocation from a previous topic modeling study. Third, a list of function words, mostly prepositions and lastly a list of the most frequent bigrams.</p>
+</section><section id="correspondence-analysis" class="level1" data-number="2"><h1 data-number="2">
+<span class="header-section-number">2</span> Correspondence Analysis</h1>
+<p>Correspondence analysis (CA), is a statistical dimension reduction technique. <span class="citation" data-cites="petrovic2009textual">Petrović et al. (<a href="#ref-petrovic2009textual" role="doc-biblioref">2009</a>)</span> In reducing a data set with many dimensions down to only two dimensions, it is also useful for visualizing multivariate data on a 2-dimensional plot, or biplot. In this case, the data are comprised of documents, or speeches, as rows and the columns are words of interest. Four sets of words are investigated to determine if one set performs best at differentiating between speech topics. CA is similar to principle components analysis, which is another multivariate technique for dimension reduction of continuous data. CA is used for discrete data, such as counts in a contingency table. The contingency table is created, along with a word frequency list, functions from the <a href="https://github.com/masterclm/mclm">mclm</a> library <span class="citation" data-cites="R-mclm">(<a href="#ref-R-mclm" role="doc-biblioref">Speelman &amp; Montes 2022</a>)</span>. In this case the data are counts of words in speeches. CA explores whether the observed counts in the table are different than would be expected if the variables, speeches and words, were independent. A measurement of independence for the data is the Pearson Chi-square test. However, one condition for this test is that no more than 20% of the expected table values can be less than 5. With data, such as this, many observed counts are very low, as few of the words will have high counts in any particular speech. In the case of the automated content words using the stop list to remove common and trivial words, the percentage of cells with an expected value less than five is about 87%. Thus, the results of the Chi-square test may not be accurate. <span class="citation" data-cites="theory_ca">Greenacre (<a href="#ref-theory_ca" role="doc-biblioref">2010</a>)</span></p>
+<p>In CA, total inertia is a measurement of the variation observed in the contingency table. CA is computed using singular value decomposition on the contingency table, which returns eigenvalues and an eigenvector. The eigenvalues can be explained as the correlation between the two variables, in this case, speeches and words. The sum of the eigenvalues is the total inertia of the data. Thus, each dimension in the decomposition contributes to the total amount of inertia. When reducing the data to two dimensions for visualization, the more inertia that is explained by these two dimension, the better the total inertia of the data is explained.</p>
+<p>A biplot is a plotting of two of the reduced dimensions as a scatter plot. Most usually, the first two dimensions, explaining the most inertia of any two dimensions are used, as to best represent the observed data. This data investigates speeches and words found in those speeches. The closer two speeches are to each other on the biplot, the more similar they are in terms of word usage. The closer two words are to each other on the biplot, the more speeches they have in common. And lastly, the closer a speech is to a word, the more often that words occurs in that speech than would be expected under independence.</p>
+<p>Extensive use of <a href="https://tidyverse.tidyverse.org">tidyverse</a> <span class="citation" data-cites="R-tidyverse">(<a href="#ref-R-tidyverse" role="doc-biblioref">Wickham 2022</a>)</span> for data wrangling and <a href="http://haozhu233.github.io/kableExtra/">kableExtra</a> <span class="citation" data-cites="R-kableExtra">(<a href="#ref-R-kableExtra" role="doc-biblioref">Zhu 2021</a>)</span> for pretty tables can be found throughout the paper. <a href="https://github.com/mjockers/syuzhet">syuzhet</a> <span class="citation" data-cites="R-syuzhet">(<a href="#ref-R-syuzhet" role="doc-biblioref">Jockers 2020</a>)</span> is used for sentiment analysis and <a href="http://ipa-tys.github.io/ROCR/">ROCR</a> <span class="citation" data-cites="R-ROCR">(<a href="#ref-R-ROCR" role="doc-biblioref">Sing et al. 2020</a>)</span>is used for ROC curve plots.</p>
+</section><section id="biplots" class="level1" data-number="3"><h1 data-number="3">
+<span class="header-section-number">3</span> Biplots</h1>
+<p>I start this study by making four sets of biplots, one for each of the word sets:</p>
+<div class="cell">
+
+</div>
+<!-- ######################### Functions ############################## -->
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<!--              Stop List generated content words                    -->
+<div id="fig-slbiplots" class="cell quarto-layout-panel">
+<figure class="figure"><div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-slbiplots-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-slbiplots-1.png" class="img-fluid figure-img" data-ref-parent="fig-slbiplots" width="672"></p>
+<p></p><figcaption class="figure-caption">(a) Full plot</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-slbiplots-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-slbiplots-2.png" class="img-fluid figure-img" data-ref-parent="fig-slbiplots" width="672"></p>
+<p></p><figcaption class="figure-caption">(b) Zoom on area of interest</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1: Biplots for stop list generated features</figcaption><p></p>
+</figure>
+</div>
+<div class="cell">
+
+</div>
+<p>The stop word list used to generate the content words, was downloaded from Kaggle and has about 700 words <span class="citation" data-cites="kaggle">(<a href="#ref-kaggle" role="doc-biblioref">Swami 2020</a>)</span>. <a href="#fig-slbiplots">Figure&nbsp;1</a> shows some reasonable separation, but not great, between the national and international speeches. As expected the State of The Union speeches are inter-mixed, leaning more towards national speeches.</p>
+<div class="cell">
+
+</div>
+<!-- Proportion of cells with expected value less than five. -->
+<!--                       Function Words                         -->
+<div id="fig-fwbiplots" class="cell quarto-layout-panel">
+<figure class="figure"><div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-fwbiplots-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-fwbiplots-1.png" class="img-fluid figure-img" data-ref-parent="fig-fwbiplots" width="672"></p>
+<p></p><figcaption class="figure-caption">(a) Full plot</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-fwbiplots-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-fwbiplots-2.png" class="img-fluid figure-img" data-ref-parent="fig-fwbiplots" width="672"></p>
+<p></p><figcaption class="figure-caption">(b) Zoom on area of interest</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2: Biplots for function words as features</figcaption><p></p>
+</figure>
+</div>
+<p>Using function words as features, as shown in <a href="#fig-fwbiplots">Figure&nbsp;2</a>, leads to more overlap between the two main categories of speeches. This method, in this case, leads to poor differentiating between the main issues of the speeches.</p>
+<div class="cell">
+
+</div>
+<!--              Content Words from Topic Modeling                    -->
+<div id="fig-cwbiplots" class="cell quarto-layout-panel">
+<figure class="figure"><div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-cwbiplots-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-cwbiplots-1.png" class="img-fluid figure-img" data-ref-parent="fig-cwbiplots" width="672"></p>
+<p></p><figcaption class="figure-caption">(a) Full plot</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-cwbiplots-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-cwbiplots-2.png" class="img-fluid figure-img" data-ref-parent="fig-cwbiplots" width="672"></p>
+<p></p><figcaption class="figure-caption">(b) Zoom on area of interest</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;3: Biplots for topic modeling generated content words as features</figcaption><p></p>
+</figure>
+</div>
+<p>The topic modeling generated list of content words is looking to be quite promising at distinguishing the main speech topics on a correspondence analysis generated biplot, see <a href="#fig-cwbiplots">Figure&nbsp;3</a>. The State of the Union speeches are firmly within the national speeches boundaries, but there is little overlap and thus good separation with the international speeches.</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<p>The top ten words most associated with national and international speeches, see <a href="#tbl-infl">Table&nbsp;1</a>, when using the content word list. These are the words with the greatest influence on determining whether a speech is on national or international issues.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-infl" class="anchored">
+
+<table class=" lightable-paper table" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<caption>Table&nbsp;1:  Most influential words for each topic </caption>
+ <thead><tr>
+<th style="text-align:left;"> Naitonal </th>
+   <th style="text-align:left;"> International </th>
+  </tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;"> insurance </td>
+   <td style="text-align:left;"> iranian </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> coverage </td>
+   <td style="text-align:left;"> iran </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> medicare </td>
+   <td style="text-align:left;"> weapon </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> affordable </td>
+   <td style="text-align:left;"> nuclear </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> health </td>
+   <td style="text-align:left;"> palestinian </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> care </td>
+   <td style="text-align:left;"> sanctions </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> hello </td>
+   <td style="text-align:left;"> israelis </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> republican </td>
+   <td style="text-align:left;"> israel </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> pay </td>
+   <td style="text-align:left;"> palestinians </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> democrat </td>
+   <td style="text-align:left;"> palestine </td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!--                              Bigrams                                -->
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-bibiplots" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-bibiplots-1.png" class="img-fluid figure-img" width="672"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;4: Biplots for bigrams as features</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Looking at the various plots, it appears that using content words for features generates the first two dimensions with the greatest separation between national and international speeches. Perhaps, followed by the stop list generated list of words. This separation will be looked at more closely. As seen in <a href="#fig-bibiplots">Figure&nbsp;4</a>, separation between the topics using the most frequent bigrams is quite poor at distinguishing speech types. Perhaps, this is due to bigrams being very common phrases, such as “a lot” or “about the”, which will occur in both national and international speeches.</p>
+<div class="cell">
+
+</div>
+<!-- Trigrams errors out and doesn't work -->
+<!-- not sure how I would fix this without seriously messing with the data set -->
+<div class="cell">
+
+</div>
+<!--                  Sentiment Analysis                  -->
+</section><section id="sentiment-analysis" class="level1" data-number="4"><h1 data-number="4">
+<span class="header-section-number">4</span> Sentiment Analysis</h1>
+<p>Sentiment analysis is briefly explored to determine if there is a pattern in the biplot data. Sentiment analysis, on a simple level, scores each word as having a negative to positive connotation. A completely negative word receives a score of -1, a postive word +1, and neutral words are around 0. The score for a whole document or speech is an average of all the individual scores in that document. The speeches on the biplot are then colored according to that speech’s sentiment. The get_sentiment function from the syuzhet library scores on a sentence by sentence basis, taking context into account, such as negations and sarcasm <span class="citation" data-cites="R-syuzhet">(<a href="#ref-R-syuzhet" role="doc-biblioref">Jockers 2020</a>)</span>. Of course, a look into sentiment analysis could be a whole paper itself, and is thus only briefly considered here.</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sentiment1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-sentiment1-1.png" class="img-fluid figure-img" width="672"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5: Sentiment scores on the content word biplot</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="look-at-speeches-with-extreme-sentiment-values" class="level2" data-number="4.1"><h2 data-number="4.1" class="anchored" data-anchor-id="look-at-speeches-with-extreme-sentiment-values">
+<span class="header-section-number">4.1</span> Look at speeches with extreme sentiment values</h2>
+<p>There is one speech with a sentiment score greater than 2.5. Statement3n has a score of 3.24, by far the highest score. Statement3n is concerning a ruling by the Supreme Court which holds “that state regulation of abortion may not place an “undue burden” on women exercising their right to an abortion,” in which Obama compliments the courts decision.</p>
+<p>There are two speeches with scores less than -0.2, statement23i with a score of -0.275 and statement32n with a score of -0.336. Statement32n is a comment about a law for fair sentencing of drug users and statement23i and how some people were unfairly sentenced using old and unjust laws. Statement23i is a condemnation of the shooting at Charlie Hebdo magazine offices in Paris.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-sentiment2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-sentiment2-1.png" class="img-fluid figure-img" width="672"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;6: Sentiment scores with the content words</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>From the first plot, see <a href="#fig-sentiment1">Figure&nbsp;5</a>, there does not appear to be a pattern in the sentiment scores of Obama speeches. The scoring seems to be fairly random. The second plot, <a href="#fig-sentiment2">Figure&nbsp;6</a>, shows words, in one case such as “war” near a low sentiment speech, however this is not always the case. Another speech with a negative score has the words “audience” and “everybody” nearby, neither of which are negative words on their own, without looking at context.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-avgsent" class="anchored">
+
+<table class=" lightable-paper table" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<caption>Table&nbsp;2:  Average sentiment for each subcorpus </caption>
+ <thead><tr>
+<th style="text-align:left;"> Subcorpus </th>
+   <th style="text-align:right;"> avg_sentiment </th>
+  </tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;"> international </td>
+   <td style="text-align:right;"> 0.687 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> national </td>
+   <td style="text-align:right;"> 0.733 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> sotu </td>
+   <td style="text-align:right;"> 0.524 </td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p><a href="#tbl-avgsent">Table&nbsp;2</a> shows the average sentiment score by sub-corpus. Even though no pattern was visible on the biplot, the table shows some variation in sentiment in each of the sub-corpora.</p>
+<!-- Look at distance from mean national coordinates to mean international coordinates -->
+</section></section><section id="distance" class="level1" data-number="5"><h1 data-number="5">
+<span class="header-section-number">5</span> Distance</h1>
+<p>In trying to determine which method, of the four, is best for differentiating between national and international speeches, I first look at the distance between the centroids for each type of speech. This however, does not say anything about variance or overlap, that is, say, national speeches in an area which is mostly international.</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-distance" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-distance-1.png" class="img-fluid figure-img" width="672"></p>
+<p></p><figcaption class="figure-caption">Figure&nbsp;7: Distance between national and international centroids for each feature method.</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Using the topic modeling generated content word speeches for correspondence analysis leads to the largest distance between the centroids for national and international speeches, as seen in <a href="#fig-distance">Figure&nbsp;7</a>, followed closely by the stop list generated content word list. Using a content word list, of some sort, would seem to be leading the methods at differentiating between speech topics.</p>
+<!--                                Inertia                              -->
+</section><section id="inertia" class="level1" data-number="6"><h1 data-number="6">
+<span class="header-section-number">6</span> Inertia</h1>
+<p>As mentioned earlier, inertia is similar to variance explained in principle components analysis. The first two components of the correspondence analysis output using the function word list results in the most inertia explained at 27.6%, see <a href="#tbl-cperc">Table&nbsp;3</a>. Thus, if the goal was to recreate as much inertia of the observed data in only two dimensions, the function word list should be used. This doesn’t, however, say anything about the goodness of the differentiating power of each method.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-cperc" class="anchored">
+
+<table class=" lightable-paper table" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<caption>Table&nbsp;3:  Inertia cummulative percent </caption>
+ <thead><tr>
+<th style="text-align:left;"> id </th>
+   <th style="text-align:right;"> dim </th>
+   <th style="text-align:right;"> value </th>
+   <th style="text-align:right;"> percent </th>
+   <th style="text-align:right;"> cum_percent </th>
+  </tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;"> sl.s </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.218 </td>
+   <td style="text-align:right;"> 13.22 </td>
+   <td style="text-align:right;"> 13.2 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> sl.s </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.140 </td>
+   <td style="text-align:right;"> 8.45 </td>
+   <td style="text-align:right;"> 21.7 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> cw.s </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.388 </td>
+   <td style="text-align:right;"> 11.33 </td>
+   <td style="text-align:right;"> 11.3 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> cw.s </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.296 </td>
+   <td style="text-align:right;"> 8.64 </td>
+   <td style="text-align:right;"> 20.0 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> fw.s </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.068 </td>
+   <td style="text-align:right;"> 18.96 </td>
+   <td style="text-align:right;"> 19.0 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> fw.s </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.031 </td>
+   <td style="text-align:right;"> 8.61 </td>
+   <td style="text-align:right;"> 27.6 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> bi.s </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.219 </td>
+   <td style="text-align:right;"> 16.75 </td>
+   <td style="text-align:right;"> 16.7 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> bi.s </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.122 </td>
+   <td style="text-align:right;"> 9.36 </td>
+   <td style="text-align:right;"> 26.1 </td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section><section id="logistic-regression" class="level1" data-number="7"><h1 data-number="7">
+<span class="header-section-number">7</span> Logistic Regression</h1>
+<p>I decided to use logistic regression as a means to determine which method was best at separating nationally themed speeches from international ones. The reasoning being, there must be some separation to be able to accurately predict the topic using logistic regression. If the topics were completely interspersed it would be quite difficult to predict which topic a speech is. I regressed the observed topic on V1 and V2, the first two components from the correspondence analysis, leaving out State of The Union speeches. I then predicted the topic for each of the four methods, and used the ROC curve to find the optimal threshold to convert the logistic probability into a categorical variable. <span class="citation" data-cites="lr_threshold">Lee (<a href="#ref-lr_threshold" role="doc-biblioref">2020</a>)</span> This method sets the threshold of the probability to the value at which the ROC curve is closest to the (0,1) point, see <a href="#fig-ROCcurves">Figure&nbsp;8</a>. The ROC curve function comes from the R library ROCR <span class="citation" data-cites="R-ROCR">(<a href="#ref-R-ROCR" role="doc-biblioref">Sing et al. 2020</a>)</span>. The total number of correctly predicted topics was summed and an overall percentage found for each method. Doing this, I found that the topic modeling generated content word list was best at predicting the topic at 90.3%, as shown in <a href="#tbl-percent">Table&nbsp;4</a> and is thus would be the best for differentiating between national and international speeches.</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div id="fig-ROCcurves" class="cell quarto-layout-panel">
+<figure class="figure"><div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-ROCcurves-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-ROCcurves-1.png" class="img-fluid figure-img" data-ref-parent="fig-ROCcurves" width="672"></p>
+<p></p><figcaption class="figure-caption">(a) Content words</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-ROCcurves-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-ROCcurves-2.png" class="img-fluid figure-img" data-ref-parent="fig-ROCcurves" width="672"></p>
+<p></p><figcaption class="figure-caption">(b) Function words</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-ROCcurves-3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-ROCcurves-3.png" class="img-fluid figure-img" data-ref-parent="fig-ROCcurves" width="672"></p>
+<p></p><figcaption class="figure-caption">(c) Stop list</figcaption><p></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-ROCcurves-4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure"><p><img src="obama_files/figure-html/fig-ROCcurves-4.png" class="img-fluid figure-img" data-ref-parent="fig-ROCcurves" width="672"></p>
+<p></p><figcaption class="figure-caption">(d) Bigrams</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;8: ROC curves</figcaption><p></p>
+</figure>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-percent" class="anchored">
+
+<table class=" lightable-paper table" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<caption>Table&nbsp;4:  Logistic regression Prediction percent correct </caption>
+ <thead><tr>
+<th style="text-align:left;"> Method </th>
+   <th style="text-align:left;"> Percent Correct </th>
+  </tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;"> Content Words </td>
+   <td style="text-align:left;"> 0.903 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> Function Words </td>
+   <td style="text-align:left;"> 0.718 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> Stop List </td>
+   <td style="text-align:left;"> 0.855 </td>
+  </tr>
+<tr>
+<td style="text-align:left;"> Bigrams </td>
+   <td style="text-align:left;"> 0.774 </td>
+  </tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section><section id="conclusion" class="level1" data-number="8"><h1 data-number="8">
+<span class="header-section-number">8</span> Conclusion</h1>
+<p>Correspondence Analysis was investigated as a technique for determining the topic of a corpus of Barack Obama speeches. Four different word lists were used as features for the analysis and the results analyzed with logistic regression. The word list based on a previous topic modeling to generate content words yielded the best results for separating the categories of speeches on a two dimensional plane.</p>
+
+</section><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-theory_ca" class="csl-entry" role="doc-biblioentry">
+Greenacre, Michael. 2010. Theory of correspondence analysis. <a href="http://www.econ.upf.edu/~michael/vienna/caipA.pdf">http://www.econ.upf.edu/~michael/vienna/caipA.pdf</a>.
+</div>
+<div id="ref-R-syuzhet" class="csl-entry" role="doc-biblioentry">
+Jockers, Matthew. 2020. <em>Syuzhet: Extracts sentiment and sentiment-derived plot arcs from text</em>. <a href="https://github.com/mjockers/syuzhet">https://github.com/mjockers/syuzhet</a>.
+</div>
+<div id="ref-lr_threshold" class="csl-entry" role="doc-biblioentry">
+Lee, Isaac. 2020. Determine the threshold "p" in the logistic regression. <a href="https://www.theissaclee.com/post/logistic-regression-beta/">https://www.theissaclee.com/post/logistic-regression-beta/</a>.
+</div>
+<div id="ref-ucsb" class="csl-entry" role="doc-biblioentry">
+Peters, Gerhard &amp; John T. Woolley. 2021. Barack obama event timeline. <a href="https://www.presidency.ucsb.edu/documents/barack-obama-event-timeline">https://www.presidency.ucsb.edu/documents/barack-obama-event-timeline</a>.
+</div>
+<div id="ref-petrovic2009textual" class="csl-entry" role="doc-biblioentry">
+Petrović, Saša, Bojana Dalbelo Bašić, Annie Morin, Blaž Zupan &amp; Jean-Hugues Chauchat. 2009. Textual features for corpus visualization using correspondence analysis. <em>Intelligent Data Analysis</em>. IOS Press 13(5). 795–813.
+</div>
+<div id="ref-R-base" class="csl-entry" role="doc-biblioentry">
+R Core Team. 2021. <em>R: A language and environment for statistical computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-R-ROCR" class="csl-entry" role="doc-biblioentry">
+Sing, Tobias, Oliver Sander, Niko Beerenwinkel &amp; Thomas Lengauer. 2020. <em>ROCR: Visualizing the performance of scoring classifiers</em>. <a href="http://ipa-tys.github.io/ROCR/">http://ipa-tys.github.io/ROCR/</a>.
+</div>
+<div id="ref-R-mclm" class="csl-entry" role="doc-biblioentry">
+Speelman, Dirk &amp; Mariana Montes. 2022. <em>Mclm: Mastering corpus linguistics methods</em>. <a href="https://CRAN.R-project.org/package=mclm">https://CRAN.R-project.org/package=mclm</a>.
+</div>
+<div id="ref-kaggle" class="csl-entry" role="doc-biblioentry">
+Swami, Rohit. 2020. All english stopwords (700+). Kaggle. <a href="https://doi.org/10.34740/KAGGLE/DS/1003424">https://doi.org/10.34740/KAGGLE/DS/1003424</a>. <a href="https://www.kaggle.com/ds/1003424">https://www.kaggle.com/ds/1003424</a>.
+</div>
+<div id="ref-R-tidyverse" class="csl-entry" role="doc-biblioentry">
+Wickham, Hadley. 2022. <em>Tidyverse: Easily install and load the tidyverse</em>. <a href="https://CRAN.R-project.org/package=tidyverse">https://CRAN.R-project.org/package=tidyverse</a>.
+</div>
+<div id="ref-R-ggplot2" class="csl-entry" role="doc-biblioentry">
+Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen, Kohske Takahashi, Claus Wilke, Kara Woo, Hiroaki Yutani &amp; Dewey Dunnington. 2022. <em>ggplot2: Create elegant data visualisations using the grammar of graphics</em>. <a href="https://CRAN.R-project.org/package=ggplot2">https://CRAN.R-project.org/package=ggplot2</a>.
+</div>
+<div id="ref-R-kableExtra" class="csl-entry" role="doc-biblioentry">
+Zhu, Hao. 2021. <em>kableExtra: Construct complex table with kable and pipe syntax</em>. <a href="https://CRAN.R-project.org/package=kableExtra">https://CRAN.R-project.org/package=kableExtra</a>.
+</div>
+</div></section></div></main><!-- /main column --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
